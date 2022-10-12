@@ -17,7 +17,10 @@ int main(int argc, char** argv)
     int num_elements;  // number of elements to be sorted
 
     num_elements = atoi(argv[1]);  // convert command line argument to num_elements
-
+    if (num_elements % world_size != 0)
+    {
+        num_elements += world_size - (num_elements % world_size);
+    }
     int elements[num_elements];         // store elements
     int sorted_elements[num_elements];  // store sorted elements
 
@@ -29,6 +32,11 @@ int main(int argc, char** argv)
         while (input >> element)
         {
             elements[i] = element;
+            i++;
+        }
+        while (i < num_elements)
+        {
+            elements[i] = 0;
             i++;
         }
         std::cout << "actual number of elements:" << i << std::endl;
@@ -59,70 +67,47 @@ int main(int argc, char** argv)
 
     int flags[world_size] = {0}, tmpFlag;
     // std::cout << num_my_element << std::endl;
-    while (1)
+    for (int k = 0; k < num_elements; ++k)
     {
-        bool flag = true;
-        while (flag)
+        for (int i = 0; i < num_my_element - 1; i += 2)
         {
-            flag = false;
-            for (int i = 0; i < num_my_element; i += 2)
+            if (my_element[i] > my_element[i + 1])
             {
-                if (my_element[i] > my_element[(i + 1) % num_my_element] && i + 1 != num_my_element)
-                {
-                    int tmp = my_element[(i + 1) % num_my_element];
-                    my_element[(i + 1) % num_my_element] = my_element[i];
-                    my_element[i] = tmp;
-                    flag = true;
-                }
+                int tmp = my_element[i + 1];
+                my_element[i + 1] = my_element[i];
+                my_element[i] = tmp;
+                // flag = true;
             }
-            for (int i = 1; i < num_my_element; i += 2)
+        }
+        for (int i = 1; i < num_my_element - 1; i += 2)
+        {
+            if (my_element[i] > my_element[i + 1])
             {
-                if (my_element[i] > my_element[(i + 1) % num_my_element] && i + 1 != num_my_element)
-                {
-                    int tmp = my_element[(i + 1) % num_my_element];
-                    my_element[(i + 1) % num_my_element] = my_element[i];
-                    my_element[i] = tmp;
-                    flag = true;
-                }
+                int tmp = my_element[i + 1];
+                my_element[i + 1] = my_element[i];
+                my_element[i] = tmp;
+                // flag = true;
             }
         }
 
-        int headbuf, tailbuf;
+        int headbuf = -1, tailbuf = -1;
         MPI_Status headstatus, tailstatus;
-
-        MPI_Send(my_element, 1, MPI_INT, (rank + world_size - 1) % world_size, 0, MPI_COMM_WORLD);
-        MPI_Send(my_element + num_my_element - 1, 1, MPI_INT, (rank + world_size + 1) % world_size, 0, MPI_COMM_WORLD);
-        MPI_Barrier(MPI_COMM_WORLD);
-        MPI_Recv(&headbuf, 1, MPI_INT, (rank + world_size - 1) % world_size, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        MPI_Recv(&tailbuf, 1, MPI_INT, (rank + world_size + 1) % world_size, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        if (rank != 0)
+            MPI_Send(my_element, 1, MPI_INT, rank - 1, 0, MPI_COMM_WORLD);
+        if (rank != world_size - 1)
+            MPI_Send(my_element + num_my_element - 1, 1, MPI_INT, rank + 1, 0, MPI_COMM_WORLD);
+        // MPI_Barrier(MPI_COMM_WORLD);
+        if (rank != 0)
+            MPI_Recv(&headbuf, 1, MPI_INT, rank - 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        if (rank != world_size - 1)
+            MPI_Recv(&tailbuf, 1, MPI_INT, rank + 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
         tmpFlag = (tailbuf < my_element[num_my_element - 1]) && rank != world_size - 1 ? 0 : 1;
-        MPI_Barrier(MPI_COMM_WORLD);
+        // MPI_Barrier(MPI_COMM_WORLD);
         my_element[num_my_element - 1] =
-            (tailbuf < my_element[num_my_element - 1]) && rank != world_size - 1 ? tailbuf : my_element[num_my_element - 1];
+            (tailbuf < my_element[num_my_element - 1]) && (tailbuf != -1) ? tailbuf : my_element[num_my_element - 1];
         my_element[0] =
-            (headbuf < my_element[0]) && rank != 0 ? headbuf : my_element[0];
-
-        MPI_Allgather(
-            &tmpFlag,
-            1,
-            MPI_INT,
-            flags,
-            1,
-            MPI_INT,
-            MPI_COMM_WORLD);
-
-        bool flag_end = true;
-        for (int i = 0; i < world_size; ++i)
-        {
-            if (!flags[i])
-            {
-                flag_end = false;
-                break;
-            }
-        }
-        if (flag_end)
-            break;
+            (headbuf > my_element[0]) && (headbuf != -1) ? headbuf : my_element[0];
     }
     MPI_Gather(my_element,
                num_my_element,
@@ -156,7 +141,10 @@ int main(int argc, char** argv)
                              std::ios_base::out);
         for (int i = 0; i < num_elements; i++)
         {
+            if (sorted_elements[i] == 0)
+                continue;
             output << sorted_elements[i] << std::endl;
+            // std::cout << sorted_elements[i] << std::endl;
         }
     }
 
