@@ -45,8 +45,8 @@ int main(int argc, char *argv[]) {
 	time_span = t2 - t1;
 	/* computation part end */
 
-	printf("Student ID: 119010001\n"); // replace it with your student id
-	printf("Name: Your Name\n"); // replace it with your name
+	printf("Student ID: 120090453\n"); // replace it with your student id
+	printf("Name: Haonan Xue\n"); // replace it with your name
 	printf("Assignment 2 Sequential\n");
 	printf("Run Time: %f seconds\n", time_span.count());
 	printf("Problem Size: %d * %d, %d\n", X_RESN, Y_RESN, max_iteration);

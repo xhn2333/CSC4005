@@ -1,13 +1,16 @@
 #include "asg2.h"
 #include <stdio.h>
 #include <pthread.h>
+#include <cstddef>
 
 int n_thd; // number of threads
+int num_elements;
 
 typedef struct {
     //TODO: specify your arguments for threads
     int a;
     int b;
+    Point *points;
     //TODO END
 } Args;
 
@@ -16,12 +19,14 @@ void* worker(void* args) {
     //TODO: procedure in each threads
     // the code following is not a necessary, you can replace it.
     
-    // Args* my_arg = (Args*) args;
+    Args* my_arg = (Args*) args;
     // int a = my_arg->a;
     // int b = my_arg->b;
-
+    for(int i=0; i< num_elements; ++i){
+        compute(my_arg->points + i);
+    }
     //TODO END
-
+    return NULL;
 }
 
 
@@ -57,11 +62,13 @@ int main(int argc, char *argv[]) {
     initData();
 
     //TODO: assign jobs
+    num_elements = total_size / n_thd;
     pthread_t thds[n_thd]; // thread pool
     Args args[n_thd]; // arguments for all threads
     for (int thd = 0; thd < n_thd; thd++){
         args[thd].a = thd;
         args[thd].b = n_thd;
+        args[thd].points = data + (thd*num_elements);
     }
     for (int thd = 0; thd < n_thd; thd++) pthread_create(&thds[thd], NULL, worker, &args[thd]);
     for (int thd = 0; thd < n_thd; thd++) pthread_join(thds[thd], NULL);
@@ -71,8 +78,8 @@ int main(int argc, char *argv[]) {
 	time_span = t2 - t1;
 	/* computation part end */
 
-    printf("Student ID: 119010001\n"); // replace it with your student id
-	printf("Name: Your Name\n"); // replace it with your name
+    printf("Student ID: 120090453\n"); // replace it with your student id
+	printf("Name: Haonan Xue\n"); // replace it with your name
 	printf("Assignment 2 Pthread\n");
 	printf("Run Time: %f seconds\n", time_span.count());
 	printf("Problem Size: %d * %d, %d\n", X_RESN, Y_RESN, max_iteration);
