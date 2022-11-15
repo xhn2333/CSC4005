@@ -7,9 +7,9 @@ int rank;
 int world_size;
 int num_my_element;
 int *point_x, *point_y;
-float *point_c;
+float* point_c;
 int *global_x, *global_y;
-float *global_c;
+float* global_c;
 
 void master() {
     // TODO: procedure run in master process
@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
         glutDisplayFunc(plot);
 #endif
     }
-    
+
     num_my_element = total_size / world_size;
     point_x = new int[num_my_element];
     point_y = new int[num_my_element];
@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
     global_x = new int[total_size];
     global_y = new int[total_size];
     global_c = new float[total_size];
-    
+
     if (rank == 0) {
         t1 = std::chrono::high_resolution_clock::now();
 
@@ -96,8 +96,8 @@ int main(int argc, char* argv[]) {
                 MPI_INT, 0, MPI_COMM_WORLD);
     MPI_Scatter(global_c, num_my_element, MPI_FLOAT, point_c, num_my_element,
                 MPI_FLOAT, 0, MPI_COMM_WORLD);
-    
-    for(int i=0; i< num_my_element; ++i){
+
+    for (int i = 0; i < num_my_element; ++i) {
         Point t;
         t.x = point_x[i];
         t.y = point_y[i];
@@ -105,7 +105,8 @@ int main(int argc, char* argv[]) {
         compute(&t);
         point_c[i] = t.color;
     }
-    MPI_Gather(point_c, num_my_element, MPI_INT, global_c, num_my_element, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Gather(point_c, num_my_element, MPI_INT, global_c, num_my_element,
+               MPI_INT, 0, MPI_COMM_WORLD);
     if (rank == 0) {
         for (int i = 0; i < total_size; ++i) {
             data[i].color = global_c[i];
@@ -113,7 +114,7 @@ int main(int argc, char* argv[]) {
     }
     MPI_Finalize();
     /* computation part end */
-    
+
     if (rank == 0) {
 #ifdef GUI
         glutMainLoop();
