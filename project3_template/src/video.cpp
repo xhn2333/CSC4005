@@ -1,17 +1,16 @@
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glut.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <GL/glut.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <time.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
-#include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
 #include <string>
-
 
 int n_body;
 int bound_x;
@@ -19,8 +18,7 @@ int bound_y;
 int n_iteration;
 std::string version;
 
-
-int main(int argc, char *argv[]){
+int main(int argc, char* argv[]) {
     std::string path = argv[1];
     std::string meta_path = path + "/" + "metadata.txt";
     std::cout << "metadata path: " << meta_path << std::endl;
@@ -52,11 +50,10 @@ int main(int argc, char *argv[]){
     double* vx = new double[n_body];
     double* vy = new double[n_body];
 
-    for (int i = 0; i < n_iteration; i++){
-
+    for (int i = 0; i < n_iteration; i++) {
         std::cout << "Iteration " << i << std::endl;
 
-        for (int i = 0; i < n_body; i++){
+        for (int i = 0; i < n_body; i++) {
             df >> x[i];
             df >> y[i];
         }
@@ -67,7 +64,7 @@ int main(int argc, char *argv[]){
         glBegin(GL_POINTS);
         double xi;
         double yi;
-        for (int i = 0; i < n_body; i++){
+        for (int i = 0; i < n_body; i++) {
             xi = x[i];
             yi = y[i];
             glVertex2f(xi, yi);
@@ -75,13 +72,9 @@ int main(int argc, char *argv[]){
         glEnd();
         glFlush();
         glutSwapBuffers();
-
     }
 
     sleep(5);
-    
+
     return 0;
-
 }
-
-

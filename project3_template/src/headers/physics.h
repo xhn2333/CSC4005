@@ -4,4 +4,4 @@
 #define err 1e-5f
 #define dt 0.0001f
 #define gravity_const 1000000.0f
-#define radius2 0.01f
+#define radius2 4.0f
