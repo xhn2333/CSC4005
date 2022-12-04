@@ -129,7 +129,7 @@ void master() {
             update_velocity(m, x, y, vx, vy, i);
         }
 
-        omp_set_num_threads(8);
+        omp_set_num_threads(n_omp_threads);
 #pragma omp parallel for
         for (int i = 0; i < n_body; i++) {
             update_position(x, y, vx, vy, i);

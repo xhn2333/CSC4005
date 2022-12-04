@@ -60,6 +60,15 @@
         "thread": "cpp",
         "cfenv": "cpp",
         "bit": "cpp",
-        "__nullptr": "cpp"
+        "__nullptr": "cpp",
+        "barrier": "cpp",
+        "__hash_table": "cpp",
+        "__split_buffer": "cpp",
+        "__tree": "cpp",
+        "queue": "cpp",
+        "stack": "cpp",
+        "__bit_reference": "cpp",
+        "filesystem": "cpp",
+        "ios": "cpp"
     }
 }

@@ -6,6 +6,8 @@ pthread:
 	g++ ./src/pthread.cpp -o pthread -lpthread -O2 -std=c++11
 cuda:
 	nvcc ./src/cuda.cu -o cuda -O2 --std=c++11
+cudag:
+	nvcc ./src/cuda.cu -o cudag -I/usr/include -L/usr/local/lib -L/usr/lib -lglut -lGLU -lGL -lm -O2 -DGUI --std=c++11
 seqg:
 	g++ ./src/sequential.cpp -o seqg -I/usr/include -L/usr/local/lib -L/usr/lib -lglut -lGLU -lGL -lm -DGUI -O2 -std=c++11
 mpig:
