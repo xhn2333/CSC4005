@@ -195,6 +195,7 @@ int main(int argc, char* argv[]) {
         if (my_rank == 0) {
             t2 = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> time_span = t2 - t1;
+            printf("Iteration %d, elapsed time: %.3f\n", i, time_span);
             (*l).save_frame(total_x, total_y);
 
 #ifdef GUI
