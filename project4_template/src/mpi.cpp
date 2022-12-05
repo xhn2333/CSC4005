@@ -17,6 +17,8 @@ int size;  // problem size
 int my_rank;
 int world_size;
 
+int n_iter;
+
 void initialize(float* data) {
     // intialize the temperature distribution
     int len = size * size;
@@ -122,6 +124,7 @@ void plot(GLubyte* pixels) {
 
 int main(int argc, char* argv[]) {
     size = atoi(argv[1]);
+    n_iter = atoi(argv[2]);
 
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
@@ -193,6 +196,8 @@ int main(int argc, char* argv[]) {
         total_time += this_time;
         printf("Iteration %d, elapsed time: %.6f\n", count, this_time);
         count++;
+        if (count >= n_iter)
+            break;
 
 #ifdef GUI
         if (my_rank == 0) {

@@ -1,10 +1,9 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-// #include <chrono>
+#include <chrono>
 
 #ifdef GUI
 #include <GL/glut.h>
@@ -17,6 +16,7 @@
 int block_size = 512;     // cuda thread block size
 __device__ int size_gpu;  // problem size
 int size_cpu;
+int n_iter;
 
 __global__ void initialize(float* data) {
     // TODO: intialize the temperature distribution (in parallelized way)
@@ -116,10 +116,15 @@ void plot(GLubyte* pixels) {
 }
 #endif
 
+__global__ void warmup() {}
+
 void master() {
     float* data_odd;
     float* data_even;
     bool* fire_area;
+
+    clock_t clock_start;
+    clock_t clock_end;
 
     cudaMalloc(&data_odd, size_cpu * size_cpu * sizeof(float));
     cudaMalloc(&data_even, size_cpu * size_cpu * sizeof(float));
@@ -144,23 +149,25 @@ void master() {
     while (true) {
         // std::chrono::high_resolution_clock::time_point t1 =
         // std::chrono::high_resolution_clock::now();
-
+        clock_start = clock();
         // TODO: modify the following lines to fit your need.
         if (count % 2 == 1) {
             update<<<n_block_size, block_size>>>(data_odd, data_even);
             maintain_fire<<<n_block_size, block_size>>>(data_even, fire_area);
-            maintain_wall<<<1, 1>>>(data_even);
+            maintain_wall<<<n_block_size, block_size>>>(data_even);
         } else {
             update<<<n_block_size, block_size>>>(data_even, data_odd);
             maintain_fire<<<n_block_size, block_size>>>(data_odd, fire_area);
-            maintain_wall<<<1, 1>>>(data_odd);
+            maintain_wall<<<n_block_size, block_size>>>(data_odd);
         }
-
+        clock_end = clock();
         // std::chrono::high_resolution_clock::time_point t2 =
-        // std::chrono::high_resolution_clock::now(); double this_time =
-        // std::chrono::duration<double>(t2 - t1).count(); total_time +=
-        // this_time; printf("Iteration %d, elapsed time: %.6f\n", count,
-        // this_time);
+        // std::chrono::high_resolution_clock::now();
+        double this_time =
+            double(clock_end - clock_start) / double(CLOCKS_PER_SEC);
+        // std::chrono::duration<double>(t2 - t1).count();
+        total_time += this_time;
+        printf("Iteration %d, elapsed time: %.6f\n", count, this_time);
         count++;
 
 #ifdef GUI
@@ -174,6 +181,8 @@ void master() {
                    cudaMemcpyDeviceToHost);
         plot(host_pixels);
 #endif
+        if (count >= n_iter)
+            break;
     }
 
     printf(
@@ -193,6 +202,8 @@ void master() {
 
 int main(int argc, char* argv[]) {
     size_cpu = atoi(argv[1]);
+    block_size = atoi(argv[2]);
+    n_iter = atoi(argv[3]);
     cudaMemcpyToSymbol(size_gpu, &size_cpu, sizeof(int));
 
 #ifdef GUI

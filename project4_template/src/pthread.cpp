@@ -15,6 +15,7 @@
 
 int size;
 int n_threads;
+int n_iter;
 
 void initialize(float* data) {
     // intialize the temperature distribution
@@ -206,6 +207,8 @@ void master() {
         }
         plot(pixels);
 #endif
+        if (count >= n_iter)
+            break;
     }
 
     printf(
@@ -224,7 +227,9 @@ void master() {
 
 int main(int argc, char* argv[]) {
     size = atoi(argv[1]);
+
     n_threads = atoi(argv[2]);
+    n_iter = atoi(argv[3]);
 
 #ifdef GUI
     glutInit(&argc, argv);
@@ -239,7 +244,7 @@ int main(int argc, char* argv[]) {
 
     printf("Student ID: 120090453\n");  // replace it with your student id
     printf("Name: Haonan XUE\n");       // replace it with your name
-    printf("Assignment 4: Heat Distribution CUDA Implementation\n");
+    printf("Assignment 4: Heat Distribution Pthread Implementation\n");
 
     return 0;
 }

@@ -16,6 +16,7 @@
 
 int size;
 int n_omp_threads;
+int n_iter;
 
 void initialize(float* data, int i) {
     // intialize the temperature distribution
@@ -171,6 +172,8 @@ void master() {
 
         plot(pixels);
 #endif
+        if (count >= n_iter)
+            break;
     }
 
     printf(
@@ -190,6 +193,7 @@ void master() {
 int main(int argc, char* argv[]) {
     size = atoi(argv[1]);
     n_omp_threads = atoi(argv[2]);
+    n_iter = atoi(argv[3]);
 
 #ifdef GUI
     glutInit(&argc, argv);
@@ -204,7 +208,8 @@ int main(int argc, char* argv[]) {
 
     printf("Student ID: 120090453\n");  // replace it with your student id
     printf("Name: Haonan XUE\n");       // replace it with your name
-    printf("Assignment 4: Heat Distribution Simulation MPI Implementation\n");
+    printf(
+        "Assignment 4: Heat Distribution Simulation OpenMP Implementation\n");
 
     return 0;
 }
